@@ -3,6 +3,8 @@ import { PDFOptions } from "puppeteer";
 export type RenderOptions = Partial<PDFOptions>;
 
 export interface RenderRequestBody {
-  html?: string;
+  pages?: string[];
+  headHtml?: string;
+  format?: PDFOptions["format"];
   options?: RenderOptions;
 }

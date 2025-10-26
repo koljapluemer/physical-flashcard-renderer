@@ -17,12 +17,13 @@ function buildLaunchOptions(): LaunchOptions {
   return base;
 }
 
-export async function renderPdf(html: string, options?: RenderOptions): Promise<Buffer> {
+export async function renderPdf(pages: string[], headHtml: string, options?: RenderOptions): Promise<Buffer> {
   const browser = await puppeteer.launch(buildLaunchOptions());
 
   try {
+    const combinedHtml = buildMultiPageHtml(pages, headHtml);
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.setContent(combinedHtml, { waitUntil: "networkidle0" });
     await synchronizeMathJax(page);
     const pdfOptions = mergePdfOptions(options);
     const pdf = await page.pdf(pdfOptions);
@@ -30,6 +31,36 @@ export async function renderPdf(html: string, options?: RenderOptions): Promise<
   } finally {
     await closeBrowser(browser);
   }
+}
+
+function buildMultiPageHtml(pages: string[], headHtml: string): string {
+  const pageStyle = `
+    <style>
+      .pdf-page {
+        page-break-after: always;
+        page-break-inside: avoid;
+      }
+      .pdf-page:last-child {
+        page-break-after: auto;
+      }
+    </style>
+  `;
+
+  const wrappedPages = pages.map((pageContent) => {
+    return `<div class="pdf-page">${pageContent}</div>`;
+  }).join('\n');
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  ${headHtml}
+  ${pageStyle}
+</head>
+<body>
+  ${wrappedPages}
+</body>
+</html>`;
 }
 
 async function synchronizeMathJax(page: Page): Promise<void> {
