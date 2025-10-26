@@ -14,7 +14,7 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: process.env.REQUEST_LIMIT ?? "5mb" }));
 
 app.post("/render", async (req: Request, res: Response, next: NextFunction) => {
-  const { pages, headHtml, format, options } = req.body as RenderRequestBody;
+  const { pages, headHtml, pageSize } = req.body as RenderRequestBody;
 
   // Validate pages field
   if (!pages) {
@@ -42,10 +42,19 @@ app.post("/render", async (req: Request, res: Response, next: NextFunction) => {
     return res.status(400).json({ error: '"headHtml" must be a string' });
   }
 
+  // Validate pageSize field if provided
+  if (pageSize !== undefined) {
+    if (!Array.isArray(pageSize) || pageSize.length !== 2) {
+      return res.status(400).json({ error: '"pageSize" must be an array of exactly 2 numbers [width, height]' });
+    }
+
+    if (!pageSize.every((dim) => typeof dim === "number" && dim > 0)) {
+      return res.status(400).json({ error: '"pageSize" values must be positive numbers' });
+    }
+  }
+
   try {
-    // Merge format option if provided
-    const mergedOptions = format ? { ...options, format } : options;
-    const pdfBuffer = await renderPdf(pages, headHtml, mergedOptions);
+    const pdfBuffer = await renderPdf(pages, headHtml, pageSize);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'inline; filename="render.pdf"');

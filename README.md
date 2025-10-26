@@ -85,15 +85,15 @@ curl -X POST http://localhost:3000/render \
   }'
 ```
 
-### Custom Format
+### Custom Page Size
 
 ```bash
 curl -X POST http://localhost:3000/render \
   -H "Content-Type: application/json" \
-  -o letter.pdf \
+  -o custom.pdf \
   -d '{
-    "pages": ["<h1>US Letter</h1>"],
+    "pages": ["<h1>Custom Size</h1><p>40mm × 60mm card</p>"],
     "headHtml": "",
-    "format": "Letter"
+    "pageSize": [40, 60]
   }'
 ```

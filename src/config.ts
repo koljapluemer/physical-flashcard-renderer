@@ -1,36 +1,30 @@
-import { PDFOptions, PDFMargin } from "puppeteer";
-import { RenderOptions } from "./types";
+import { PDFOptions } from "puppeteer";
 
 export const DEFAULT_PDF_OPTIONS: PDFOptions = {
   format: "A4",
   printBackground: true,
   margin: {
-    top: "1cm",
-    bottom: "1cm",
-    left: "1cm",
-    right: "1cm",
+    top: "0mm",
+    bottom: "0mm",
+    left: "0mm",
+    right: "0mm",
   },
 };
 
-const DEFAULT_MARGIN: PDFMargin = DEFAULT_PDF_OPTIONS.margin ?? {};
-
-export function mergePdfOptions(custom?: RenderOptions): PDFOptions {
-  if (!custom) {
+export function mergePdfOptions(pageSize?: [number, number]): PDFOptions {
+  if (pageSize) {
     return {
-      ...DEFAULT_PDF_OPTIONS,
-      margin: { ...DEFAULT_MARGIN },
+      printBackground: true,
+      width: `${pageSize[0]}mm`,
+      height: `${pageSize[1]}mm`,
+      margin: {
+        top: "0mm",
+        bottom: "0mm",
+        left: "0mm",
+        right: "0mm",
+      },
     };
   }
 
-  const mergedMargin: PDFMargin | undefined = custom.margin
-    ? { ...DEFAULT_MARGIN, ...custom.margin }
-    : { ...DEFAULT_MARGIN };
-
-  const { margin, ...rest } = custom;
-
-  return {
-    ...DEFAULT_PDF_OPTIONS,
-    ...rest,
-    margin: mergedMargin,
-  };
+  return { ...DEFAULT_PDF_OPTIONS };
 }
