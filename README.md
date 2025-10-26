@@ -46,14 +46,26 @@ ALLOW_ALL_ORIGINS=true npm run dev
 
 ## Deployment
 
-The service targets native Node runtimes (e.g., Render.com Web Service). Configure your host to run:
+### Docker / Render.com
+
+The service now ships with a Chromium-ready Docker image (recommended for Render.com / Fly.io). Build and run locally:
 
 ```bash
-npm install && npm run build
-npm start
+docker build -t physical-flashcard-renderer .
+docker run --rm -p 3000:3000 --env-file .env physical-flashcard-renderer
 ```
 
-Ensure the necessary environment variables (see `.env.example`) are set in your hosting dashboard.
+On Render.com choose **Runtime → Docker** and point to this repo. Render will execute the `Dockerfile` automatically; no extra build/start commands are required. Configure the environment variables (see `.env.example`) in the Render dashboard.
+
+### Manual Node Runtime
+
+If you intentionally skip Docker, ensure your host installs the system libraries required by headless Chrome, then run:
+
+```bash
+npm install
+npm run build
+npm start
+```
 
 ## API Documentation
 
