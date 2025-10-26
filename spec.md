@@ -79,9 +79,9 @@ Convert user-submitted HTML (containing text, images, and math markup) into a hi
 
 #### 6. Deployment
 
-* Containerized (Dockerfile) Node service.
-* Expose port 3000.
-* Command: `node dist/server.js`
+* Native Node.js service (Render.com / Fly.io buildpacks or similar).
+* Build step: `npm install && npm run build`.
+* Start command: `npm start` (runs `node dist/server.js`).
 * Environment variables:
 
   * `PORT`
