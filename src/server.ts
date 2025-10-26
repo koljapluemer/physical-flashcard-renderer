@@ -7,14 +7,38 @@ const app = express();
 app.use(express.json({ limit: process.env.REQUEST_LIMIT ?? "5mb" }));
 
 app.post("/render", async (req: Request, res: Response, next: NextFunction) => {
-  const { html, options } = req.body as RenderRequestBody;
+  const { pages, headHtml, format, options } = req.body as RenderRequestBody;
 
-  if (!html || typeof html !== "string") {
-    return res.status(400).json({ error: "`html` field is required" });
+  // Validate pages field
+  if (!pages) {
+    return res.status(400).json({ error: '"pages" field is required' });
+  }
+
+  if (!Array.isArray(pages)) {
+    return res.status(400).json({ error: '"pages" must be an array' });
+  }
+
+  if (pages.length === 0) {
+    return res.status(400).json({ error: '"pages" must be a non-empty array' });
+  }
+
+  if (!pages.every((page) => typeof page === "string")) {
+    return res.status(400).json({ error: 'All elements in "pages" must be strings' });
+  }
+
+  // Validate headHtml field
+  if (headHtml === undefined) {
+    return res.status(400).json({ error: '"headHtml" field is required' });
+  }
+
+  if (typeof headHtml !== "string") {
+    return res.status(400).json({ error: '"headHtml" must be a string' });
   }
 
   try {
-    const pdfBuffer = await renderPdf(html, options);
+    // Merge format option if provided
+    const mergedOptions = format ? { ...options, format } : options;
+    const pdfBuffer = await renderPdf(pages, headHtml, mergedOptions);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'inline; filename="render.pdf"');
