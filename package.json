@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
+    "postinstall": "puppeteer browsers install chrome",
     "test": "echo \"No tests defined\" && exit 1"
   },
   "keywords": [],

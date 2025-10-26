@@ -9,6 +9,8 @@ npm install
 npm run build
 ```
 
+> `npm install` will download the compatible Chromium build via Puppeteer’s `postinstall` hook so the renderer can run in production.
+
 Copy `.env.example` to `.env` and adjust values for your deployment environment.
 
 ## Development
@@ -25,10 +27,22 @@ npm start
 
 The server listens on `http://localhost:3000` by default.
 
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server port | `3000` |
+| `ALLOW_ALL_ORIGINS` | Set to `"true"` to allow CORS from all origins (development/local only) | `undefined` (CORS disabled) |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated list of origins allowed when `ALLOW_ALL_ORIGINS` is not `"true"` | `undefined` |
+| `REQUEST_LIMIT` | Maximum request body size | `"5mb"` |
+| `CHROME_EXECUTABLE_PATH` | Provide a custom Chrome/Chromium path if needed | System default / bundled Chromium |
+| `PUPPETEER_SKIP_DOWNLOAD` | Set to `"true"` to skip downloading Chromium during install (not recommended for deployments) | `undefined` |
+
 ### Local Development with CORS
 
 ```bash
 ALLOW_ALL_ORIGINS=true npm run dev
+```
 
 ## Deployment
 
@@ -40,7 +54,6 @@ npm start
 ```
 
 Ensure the necessary environment variables (see `.env.example`) are set in your hosting dashboard.
-```
 
 ## API Documentation
 
@@ -95,8 +108,8 @@ curl -X POST http://localhost:3000/render \
   -H "Content-Type: application/json" \
   -o custom.pdf \
   -d '{
-    "pages": ["<h1>Custom Size</h1><p>40mm × 60mm card</p>"],
+    "pages": ["<h1>Custom Size</h1><p>50mm × 60mm card</p>"],
     "headHtml": "",
-    "pageSize": [40, 60]
+    "pageSize": [50, 60]
   }'
 ```
