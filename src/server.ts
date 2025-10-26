@@ -1,9 +1,16 @@
 import express, { ErrorRequestHandler, NextFunction, Request, Response } from "express";
+import cors from "cors";
 import { renderPdf } from "./render";
 import { RenderRequestBody } from "./types";
 
 const app = express();
 
+// CORS configuration
+const corsOptions = process.env.ALLOW_ALL_ORIGINS === "true"
+  ? { origin: "*" }
+  : undefined;
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: process.env.REQUEST_LIMIT ?? "5mb" }));
 
 app.post("/render", async (req: Request, res: Response, next: NextFunction) => {
