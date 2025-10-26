@@ -9,6 +9,8 @@ npm install
 npm run build
 ```
 
+Copy `.env.example` to `.env` and adjust values for your deployment environment.
+
 ## Development
 
 ```bash
@@ -23,20 +25,21 @@ npm start
 
 The server listens on `http://localhost:3000` by default.
 
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | `3000` |
-| `ALLOW_ALL_ORIGINS` | Set to `"true"` to allow CORS from all origins (use in development/local only) | `undefined` (CORS disabled) |
-| `REQUEST_LIMIT` | Maximum request body size | `"5mb"` |
-| `CHROME_EXECUTABLE_PATH` | Custom Chrome/Chromium path | System default |
-| `PUPPETEER_SKIP_DOWNLOAD` | Skip Puppeteer Chromium download | `undefined` |
-
 ### Local Development with CORS
 
 ```bash
 ALLOW_ALL_ORIGINS=true npm run dev
+
+## Deployment
+
+The service targets native Node runtimes (e.g., Render.com Web Service). Configure your host to run:
+
+```bash
+npm install && npm run build
+npm start
+```
+
+Ensure the necessary environment variables (see `.env.example`) are set in your hosting dashboard.
 ```
 
 ## API Documentation

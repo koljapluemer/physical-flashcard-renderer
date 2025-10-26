@@ -1,14 +1,12 @@
 import express, { ErrorRequestHandler, NextFunction, Request, Response } from "express";
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
 import { renderPdf } from "./render";
 import { RenderRequestBody } from "./types";
 
 const app = express();
 
 // CORS configuration
-const corsOptions = process.env.ALLOW_ALL_ORIGINS === "true"
-  ? { origin: "*" }
-  : undefined;
+const corsOptions = buildCorsOptions();
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: process.env.REQUEST_LIMIT ?? "5mb" }));
@@ -80,3 +78,20 @@ app.listen(port, () => {
 });
 
 export { app };
+
+function buildCorsOptions(): CorsOptions | undefined {
+  if (process.env.ALLOW_ALL_ORIGINS === "true") {
+    return { origin: "*" };
+  }
+
+  const origins = process.env.CORS_ALLOWED_ORIGINS
+    ?.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  if (origins && origins.length > 0) {
+    return { origin: origins };
+  }
+
+  return undefined;
+}

@@ -17,19 +17,47 @@ function buildLaunchOptions() {
     }
     return base;
 }
-async function renderPdf(html, options) {
+async function renderPdf(pages, headHtml, pageSize) {
     const browser = await puppeteer_1.default.launch(buildLaunchOptions());
     try {
+        const combinedHtml = buildMultiPageHtml(pages, headHtml);
         const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: "networkidle0" });
+        await page.setContent(combinedHtml, { waitUntil: "networkidle0" });
         await synchronizeMathJax(page);
-        const pdfOptions = (0, config_1.mergePdfOptions)(options);
+        const pdfOptions = (0, config_1.mergePdfOptions)(pageSize);
         const pdf = await page.pdf(pdfOptions);
         return Buffer.isBuffer(pdf) ? pdf : Buffer.from(pdf);
     }
     finally {
         await closeBrowser(browser);
     }
+}
+function buildMultiPageHtml(pages, headHtml) {
+    const pageStyle = `
+    <style>
+      .pdf-page {
+        page-break-after: always;
+        page-break-inside: avoid;
+      }
+      .pdf-page:last-child {
+        page-break-after: auto;
+      }
+    </style>
+  `;
+    const wrappedPages = pages.map((pageContent) => {
+        return `<div class="pdf-page">${pageContent}</div>`;
+    }).join('\n');
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  ${headHtml}
+  ${pageStyle}
+</head>
+<body>
+  ${wrappedPages}
+</body>
+</html>`;
 }
 async function synchronizeMathJax(page) {
     try {

@@ -6,27 +6,25 @@ exports.DEFAULT_PDF_OPTIONS = {
     format: "A4",
     printBackground: true,
     margin: {
-        top: "1cm",
-        bottom: "1cm",
-        left: "1cm",
-        right: "1cm",
+        top: "0mm",
+        bottom: "0mm",
+        left: "0mm",
+        right: "0mm",
     },
 };
-const DEFAULT_MARGIN = exports.DEFAULT_PDF_OPTIONS.margin ?? {};
-function mergePdfOptions(custom) {
-    if (!custom) {
+function mergePdfOptions(pageSize) {
+    if (pageSize) {
         return {
-            ...exports.DEFAULT_PDF_OPTIONS,
-            margin: { ...DEFAULT_MARGIN },
+            printBackground: true,
+            width: `${pageSize[0]}mm`,
+            height: `${pageSize[1]}mm`,
+            margin: {
+                top: "0mm",
+                bottom: "0mm",
+                left: "0mm",
+                right: "0mm",
+            },
         };
     }
-    const mergedMargin = custom.margin
-        ? { ...DEFAULT_MARGIN, ...custom.margin }
-        : { ...DEFAULT_MARGIN };
-    const { margin, ...rest } = custom;
-    return {
-        ...exports.DEFAULT_PDF_OPTIONS,
-        ...rest,
-        margin: mergedMargin,
-    };
+    return { ...exports.DEFAULT_PDF_OPTIONS };
 }
