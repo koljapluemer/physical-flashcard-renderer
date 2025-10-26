@@ -17,7 +17,7 @@ function buildLaunchOptions(): LaunchOptions {
   return base;
 }
 
-export async function renderPdf(pages: string[], headHtml: string, options?: RenderOptions): Promise<Buffer> {
+export async function renderPdf(pages: string[], headHtml: string, pageSize?: [number, number]): Promise<Buffer> {
   const browser = await puppeteer.launch(buildLaunchOptions());
 
   try {
@@ -25,7 +25,7 @@ export async function renderPdf(pages: string[], headHtml: string, options?: Ren
     const page = await browser.newPage();
     await page.setContent(combinedHtml, { waitUntil: "networkidle0" });
     await synchronizeMathJax(page);
-    const pdfOptions = mergePdfOptions(options);
+    const pdfOptions = mergePdfOptions(pageSize);
     const pdf = await page.pdf(pdfOptions);
     return Buffer.isBuffer(pdf) ? pdf : Buffer.from(pdf);
   } finally {

@@ -14,15 +14,7 @@ Generates a PDF from an array of HTML page contents.
 {
   "pages": ["<h1>Page 1</h1><p>Content...</p>", "<h1>Page 2</h1>"],
   "headHtml": "<script src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'></script>",
-  "format": "A4",
-  "options": {
-    "margin": {
-      "top": "1cm",
-      "bottom": "1cm",
-      "left": "1cm",
-      "right": "1cm"
-    }
-  }
+  "pageSize": [210, 297]
 }
 ```
 
@@ -32,16 +24,14 @@ Generates a PDF from an array of HTML page contents.
 |-------|------|----------|-------------|
 | `pages` | `string[]` | **Yes** | Array of HTML content strings. Each string represents one page's body content. Must contain at least one page. |
 | `headHtml` | `string` | **Yes** | HTML to be inserted in the `<head>` section. Should include MathJax scripts, stylesheets, and any other document-level resources. |
-| `format` | `string` | No | PDF page format. Common values: `"A4"`, `"Letter"`, `"Legal"`. Defaults to `"A4"`. |
-| `options` | `object` | No | Additional PDF options (margins, etc.). See Puppeteer PDFOptions for available fields. |
+| `pageSize` | `[number, number]` | No | Page dimensions in millimeters: `[width, height]`. Defaults to A4: `[210, 297]`. |
 
 **Validation Rules:**
 
 - `pages` must be a non-empty array
 - All elements in `pages` must be strings
 - `headHtml` must be a string
-- `format` if provided must be a valid PDF format string
-- `options` if provided must be an object
+- `pageSize` if provided must be an array of exactly 2 positive numbers
 
 ### Response
 
@@ -111,24 +101,16 @@ curl -X POST http://localhost:3000/render \
   }'
 ```
 
-### Custom Format and Margins
+### Custom Page Size
 
 ```bash
 curl -X POST http://localhost:3000/render \
   -H "Content-Type: application/json" \
-  -o letter.pdf \
+  -o custom.pdf \
   -d '{
-    "pages": ["<h1>US Letter Format</h1>"],
+    "pages": ["<h1>Custom Size</h1><p>100mm × 150mm card</p>"],
     "headHtml": "",
-    "format": "Letter",
-    "options": {
-      "margin": {
-        "top": "0.5in",
-        "bottom": "0.5in",
-        "left": "0.5in",
-        "right": "0.5in"
-      }
-    }
+    "pageSize": [100, 150]
   }'
 ```
 
