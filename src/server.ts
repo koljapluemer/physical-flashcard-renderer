@@ -9,7 +9,7 @@ const app = express();
 const corsOptions = buildCorsOptions();
 
 app.use(cors(corsOptions));
-app.use(express.json({ limit: process.env.REQUEST_LIMIT ?? "5mb" }));
+app.use(express.json({ limit: "100mb" }));
 
 app.post("/render", async (req: Request, res: Response, next: NextFunction) => {
   const { pages, headHtml, pageSize } = req.body as RenderRequestBody;
@@ -80,10 +80,6 @@ app.listen(port, () => {
 export { app };
 
 function buildCorsOptions(): CorsOptions | undefined {
-  if (process.env.ALLOW_ALL_ORIGINS === "true") {
-    return { origin: "*" };
-  }
-
   const origins = process.env.CORS_ALLOWED_ORIGINS
     ?.split(",")
     .map((origin) => origin.trim())
