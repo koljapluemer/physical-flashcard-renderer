@@ -18,13 +18,33 @@ function buildLaunchOptions(): LaunchOptions {
 }
 
 export async function renderPdf(pages: string[], headHtml: string, pageSize?: [number, number]): Promise<Buffer> {
-  const browser = await puppeteer.launch(buildLaunchOptions());
+  const launchOptions = buildLaunchOptions();
+  console.log("[render] launching browser, executablePath:", launchOptions.executablePath ?? "(puppeteer default)");
+  const browser = await puppeteer.launch(launchOptions);
+  console.log("[render] browser launched");
 
   try {
     const combinedHtml = buildMultiPageHtml(pages, headHtml);
+    console.log("[render] combined HTML length:", combinedHtml.length);
+    console.log("[render] headHtml:", headHtml.slice(0, 500));
+
     const page = await browser.newPage();
+
+    page.on("request", (req) => {
+      console.log("[render] request:", req.resourceType(), req.url().slice(0, 120));
+    });
+    page.on("requestfailed", (req) => {
+      console.log("[render] request FAILED:", req.url().slice(0, 120), req.failure()?.errorText);
+    });
+    page.on("console", (msg) => {
+      console.log("[render] page console:", msg.type(), msg.text().slice(0, 200));
+    });
+
+    console.log("[render] calling setContent (waitUntil: networkidle0)");
     await page.setContent(combinedHtml, { waitUntil: "networkidle0" });
+    console.log("[render] setContent done");
     await synchronizeMathJax(page);
+    console.log("[render] MathJax sync done");
     const pdfOptions = mergePdfOptions(pageSize);
     const pdf = await page.pdf(pdfOptions);
     return Buffer.isBuffer(pdf) ? pdf : Buffer.from(pdf);
@@ -70,7 +90,7 @@ async function synchronizeMathJax(page: Page): Promise<void> {
         const mathJax = (globalThis as typeof globalThis & MathJaxHost).MathJax;
         return typeof mathJax?.typesetPromise === "function";
       },
-      { timeout: 3000 }
+      { timeout: 30000 }
     );
 
     await page.evaluate(async () => {
