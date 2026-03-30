@@ -41,7 +41,7 @@ export async function renderPdf(pages: string[], headHtml: string, pageSize?: [n
     });
 
     console.log("[render] calling setContent (waitUntil: networkidle0)");
-    await page.setContent(combinedHtml, { waitUntil: "networkidle0" });
+    await page.setContent(combinedHtml, { waitUntil: "load", timeout: 120000 });
     console.log("[render] setContent done");
     await synchronizeMathJax(page);
     console.log("[render] MathJax sync done");
@@ -90,7 +90,7 @@ async function synchronizeMathJax(page: Page): Promise<void> {
         const mathJax = (globalThis as typeof globalThis & MathJaxHost).MathJax;
         return typeof mathJax?.typesetPromise === "function";
       },
-      { timeout: 300000 }
+      { timeout: 500000 }
     );
 
     await page.evaluate(async () => {
