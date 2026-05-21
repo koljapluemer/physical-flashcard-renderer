@@ -90,7 +90,7 @@ async function synchronizeMathJax(page: Page): Promise<void> {
         const mathJax = (globalThis as typeof globalThis & MathJaxHost).MathJax;
         return typeof mathJax?.typesetPromise === "function";
       },
-      { timeout: 500000 }
+      { timeout: 1000000 }
     );
 
     await page.evaluate(async () => {
